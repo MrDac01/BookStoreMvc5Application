@@ -1,0 +1,94 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc
+@model IPagedList<BookStoreMvc5Application.ViewModels.IndexViewModel>
+
+
+@{
+    ViewBag.Title = "Управление книгами";
+}
+
+<br />
+
+<ol class="breadcrumb">
+    <li><a href="@Url.Action("Index", new { area = "", controller = "home" })">Главная</a></li>
+    <li class="active">@ViewBag.Title</li>
+</ol>
+
+<h2>@ViewBag.Title</h2>
+
+<div class="container">
+    <div class="col-md-3">
+        <p>
+            @Html.ActionLink("Добавить новую книгу", "Create", null, new { @class = "btn btn-success" })
+        </p>
+    </div>
+        <div class="col-md-6">
+
+            @using (Html.BeginForm("index", "books", method: FormMethod.Get))
+            {
+                <input type="text" name="search" value="@ViewBag.search" />
+                <input type="submit" />
+            }
+        </div>
+    </div>
+    <table class="table">
+        <tr>
+            <th>
+                Наименование книги
+            </th>
+            <th>
+                Имя автора
+            </th>
+            <th>
+                Категория
+            </th>
+            <th>
+                Количество страниц
+            </th>
+            <th>
+                Стоимость
+            </th>
+            <th>
+                Дата добавления
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in ViewBag.OnePageOfBooks)
+        {
+            <tr>
+                <td>
+                    @item.Title
+                </td>
+                <td>
+                    @item.AuthorName
+                </td>
+                <td>
+                    @item.CategoryName
+                </td>
+                <td>
+                    @item.Pages
+                </td>
+                <td>
+                    @item.Cost
+                </td>
+                <td>
+                    @item.CreatedAt
+                </td>
+                <td>
+                    <a href="@Url.Action("Edit", new { id = item.Id })"> <i class="glyphicon glyphicon-pencil"></i> Изменить</a>  |
+                    <a href="@Url.Action("Details", new { id = item.Id })"> <i class="glyphicon glyphicon-book"></i> Просмотр</a>  |
+                    <a href="@Url.Action("Delete", new { id = item.Id })"> <i class="glyphicon glyphicon-trash"></i> Удалить </a>
+
+
+                    @*@Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                        @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.Id })*@
+                </td>
+            </tr>
+        }
+
+    </table>
+
+
+    @Html.PagedListPager((IPagedList)ViewBag.OnePageOfBooks, page => Url.Action("index", new { page }))

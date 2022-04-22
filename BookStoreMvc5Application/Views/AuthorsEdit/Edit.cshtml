@@ -1,0 +1,79 @@
+﻿@model BookStoreMvc5Application.ViewModels.Authors.EditAuthorsViewModel
+
+@{
+    ViewBag.Title = "Редактировать автора";
+}
+
+<h2>Edit</h2>
+
+
+@using (Ajax.BeginForm("UpdateAuthorJson", new { area = "", controller = "AuthorApi" }, new AjaxOptions
+{
+    AllowCache = false,
+    HttpMethod = "POST",
+    OnFailure = "reportFailure",
+    OnSuccess = "reportSuccess"
+}))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Author</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+<div id="saveResult"></div>
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryajax")
+
+    <script type="text/javascript">
+
+    function reportFailure() {
+        $('#saveResult').html(`<div class="alert alert-danger">
+    Ошибка сохранения данных!
+    </div>`);
+    }
+
+
+    function reportSuccess(resp) {
+        console.log('server response', resp);
+
+        if (resp.status) {
+            window.location.href = '@Url.Action("index")';
+        } else {
+            $('#saveResult').html(`<div class="alert alert-warning">
+    Ошибка сохранения данных!
+    </div>`);
+        }
+    }
+    </script>
+}

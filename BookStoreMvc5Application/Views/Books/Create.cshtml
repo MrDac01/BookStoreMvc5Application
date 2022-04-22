@@ -1,0 +1,159 @@
+﻿@model BookStoreMvc5Application.ViewModels.CreateBookViewModel
+
+@{
+    ViewBag.Title = "Добавить новую книгу";
+}
+
+<br />
+
+<ol class="breadcrumb">
+    <li><a href="@Url.Action("Index", new { area="", controller="home" })">Главная</a></li>
+    <li><a href="@Url.Action("Index", new { area="", controller="books" })">Управление книгами</a></li>
+    <li class="active">@ViewBag.Title</li>
+</ol>
+
+<h2>@ViewBag.Title</h2>
+
+@using (Ajax.BeginForm("CreateBookJson", new { area = "", controller = "BookApi" }, new AjaxOptions
+{
+    AllowCache = false,
+    HttpMethod = "POST",
+    OnFailure = "reportFailure",
+    OnSuccess = "reportSuccess"
+}))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.AuthorId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.AuthorId, new SelectListItem[] { }, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.AuthorId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CategoryId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.CategoryId, new SelectListItem[] { }, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Pages, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Pages, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Pages, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Cost, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Cost, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Cost, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div id="saveResult"></div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Вернуться к списку", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryajax")
+
+
+    <script type="text/javascript">
+
+    function reportFailure() {
+        $('#saveResult').html(`<div class="alert alert-danger">
+    Ошибка сохранения данных!
+    </div>`);
+    }
+
+
+    function reportSuccess(resp) {
+        console.log('server response', resp);
+
+        if (resp.status) {
+            window.location.href = '@Url.Action("index")';
+        } else {
+            $('#saveResult').html(`<div class="alert alert-warning">
+    Ошибка сохранения данных!
+    </div>`);
+        }
+    }
+
+    (function () {
+
+        const opts = {
+            AuthorId: "#AuthorId",
+            AuthorIdUrl: '@Url.Action("GetAuthorsJson", new { area="", controller="AuthorApi" })',
+            SelectedAuthor: null,
+
+            CategoryId: "#CategoryId",
+            CategoryIdUrl: '@Url.Action("GetCategoriesJson", new { area="", controller="CategoriesApi" })',
+            SelectedCategory: null
+        }
+
+        const AuthorIdElem = $.extend({}, ComboBox.defaultComboBoxSettings, {
+            id: opts.AuthorId,
+            modelProperty: 'authors',
+
+            valueProperty: 'Id',
+            displayProperty: 'FullName',
+
+            url: opts.AuthorIdUrl
+        });
+
+        const CategoryIdElem = $.extend({}, ComboBox.defaultComboBoxSettings, {
+            id: opts.CategoryId,
+            modelProperty: 'categories',
+
+            valueProperty: 'Id',
+            displayProperty: 'Name',
+
+            url: opts.CategoryIdUrl
+        });
+
+        $(function () {
+
+            if (!!opts.SelectedAuthor) {
+                AuthorIdElem.currentValueProvider = () => opts.SelectedAuthor;
+            }
+
+            if (!!opts.SelectedCategory) {
+                CategoryIdElem.currentValueProvider = () => opts.SelectedCategory;
+            }
+
+            AuthorIdElem.init();
+            CategoryIdElem.init();
+        })
+
+    })();
+    </script>
+
+}
